@@ -1,0 +1,70 @@
+{
+  "scope": "single_agent_runner_implementation_and_offline_validation_only",
+  "generated_at_utc": "2026-11-03T08:40:45.428132+00:00",
+  "branch": "feat/single-agent-runner",
+  "base_commit": "61f1eeca92619007e3707e135c32aaab98eb49cb",
+  "upstream_commit": "6614e77191c1f8e2d0c44c123c6f915905ebafae",
+  "real_model_api_calls": 0,
+  "pytest": {
+    "command": ".venv/bin/python -m pytest -q --junitxml=reports/runner-offline-pytest.xml",
+    "passed": 55,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "warnings": 8,
+    "duration_seconds": 25.634,
+    "junit_artifact": "reports/runner-offline-pytest.xml"
+  },
+  "original_smoke": {
+    "command": ".venv/bin/python scripts/smoke_bank_transfer.py",
+    "status": "passed",
+    "passed_scenarios": 9
+  },
+  "offline_demo": {
+    "execution_mode": "offline_mock",
+    "status": "completed",
+    "termination_reason": "end_task",
+    "model_requests": 2,
+    "model_responses": 2,
+    "model_api_call_attempts": 0,
+    "tool_calls": 2,
+    "tool_errors": 0
+  },
+  "offline_demo_evaluation": {
+    "main_score": 0.0,
+    "upstream_side_task_success": false
+  },
+  "offline_demo_artifacts": [
+    "conversation.json",
+    "events.jsonl",
+    "state_after.json",
+    "state_before.json",
+    "summary.json"
+  ],
+  "test_types": {
+    "original_no_model_environment": 12,
+    "scripted_mock_model_runner": 27,
+    "real_sdk_with_mock_http_or_no_request": 4,
+    "deterministic_environment_evaluation": 12
+  },
+  "unrun": [
+    "real_model_episode",
+    "real_api_authentication",
+    "real_model_task_performance",
+    "monitor",
+    "blocking_feedback",
+    "paper_reproduction"
+  ],
+  "source_sha256": {
+    "single_agent/config.py": "dd93feb75aeb5476415c517fe8edfa5181271827c2134971fba2ae0d075252b2",
+    "single_agent/provider.py": "fd334493fa08010f2445e43c31c2f360fcddf128f0ed938db59067f0fd031435",
+    "single_agent/runner.py": "5c376b4a0977efb2be05ec6b1fdb31324ff57f76eae607a3cb102723444f35e7",
+    "single_agent/evaluation.py": "72409827cd1191e70fa47b057ae16a71839199264fcef770d502997086fd56a1",
+    "single_agent/mock.py": "92794deff0cf5fb52e8a7c6ee6c6c18fe17eb91f10b5de79c4aa0ca263b90ac8",
+    "scripts/run_episode.py": "1559457a0b13c9979a69866adb22f87d6f0c1dc9a00bbbe7b24e19e92ac4b3fa",
+    "configs/episode.example.yaml": "016ca5b99fb6969f8f752fe85ef8c9404b6dca3a2b6e7a432cfd0d8563733afe",
+    "tests/test_single_agent_runner.py": "3d3ec1ece3f7048a5abf24d16beb0ddc3be0c7193ab05480de2e426fc92241e7",
+    "tests/test_anthropic_adapter.py": "70a97b898e69bdc4272cb4340ee5a5aa2c65a7a234ac75dc99eafd75ccbfca22",
+    "tests/test_episode_evaluation.py": "a5c07011806508813754311d726c419bc60351db498fcca466b59fb2ed6244d0"
+  }
+}

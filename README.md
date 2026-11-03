@@ -2,11 +2,13 @@
 
 Swarm Alignment 해커톤의 첫 단계로, **SHADE-Arena의 실제 `bank_transfer_2` 환경을 모델 API 없이 실행·점검**했습니다. 환경 준비 결과이며, 논문 재현 성공이나 에이전트 성능 측정 결과가 아닙니다.
 
+후속 단계로 **실제 모델을 연결할 수 있는 1-agent·1-episode 실행기**도 구현했습니다. 이번 작업에서는 monitor를 끄고 오프라인 모의 모델로만 검증했습니다. 실제 API 실행 방법은 [실행기 안내](docs/single_agent_runner.ko.md)에 있습니다.
+
 - 연구 목표: [Noticing the Watcher: LLM Agents Can Infer CoT Monitoring from Blocking Feedback](https://arxiv.org/abs/2603.16928)의 단일 agent 실험을 준비하기.
 - 기반 코드: [jkutaso/SHADE-Arena](https://github.com/jkutaso/SHADE-Arena).
 - 고정 upstream commit: `6614e77191c1f8e2d0c44c123c6f915905ebafae`.
 - 대상: `task_pairs/bank_transfer_2`; 실제 생성 함수는 `BankingEnvironment.create()`.
-- 작업 브랜치: `setup/bank-transfer-smoke`. 시작 시 저장소는 README만 있었고 `AGENTS.md`는 없었습니다.
+- 환경 준비 브랜치: `setup/bank-transfer-smoke`. 후속 실행기 브랜치: `feat/single-agent-runner`이며 기준 커밋 `61f1eeca92619007e3707e135c32aaab98eb49cb`를 포함합니다. 적용되는 `AGENTS.md`는 없었습니다.
 
 ## 1. 설치와 실행
 
@@ -15,9 +17,11 @@ Swarm Alignment 해커톤의 첫 단계로, **SHADE-Arena의 실제 `bank_transf
 새 컴퓨터에서 이 작업 브랜치를 받으려면 다음 명령을 사용합니다.
 
 ```bash
-git clone --branch setup/bank-transfer-smoke https://github.com/khs1010/OZLab-Swarm.git
+git clone --branch feat/single-agent-runner https://github.com/khs1010/OZLab-Swarm.git
 cd OZLab-Swarm
 ```
+
+위 명령은 후속 실행기 브랜치용입니다. 앞 단계 환경 준비 코드만 보려면 `setup/bank-transfer-smoke`를 선택합니다.
 
 저장소 루트에서 실행합니다.
 
@@ -39,7 +43,7 @@ bash scripts/setup.sh
 
 일반적인 설치에는 `github.com`, `pypi.org`, `files.pythonhosted.org` 접근이 필요합니다. 현재 클라우드의 기존 프록시·TLS 검증을 그대로 사용했습니다. 명령 샌드박스에서 네트워크를 막는 경우, 설치 명령만 제공되는 네트워크 실행 권한으로 실행해야 합니다. 프록시나 TLS 검증을 끄지 마세요. 설치 후 smoke test에는 네트워크가 필요 없습니다.
 
-설치한 것은 **은행 환경·기존 평가 함수·테스트에 필요한 33개 패키지**입니다. 주요 의존성은 Pydantic의 이메일 검증 extra, PyYAML, pandas, rich, docstring-parser, pytest입니다. `openai`와 `anthropic` SDK도 upstream이 예외 클래스를 import하므로 설치되지만, 이 테스트는 모델 클라이언트를 만들지 않습니다. GPU, Docker, 데이터베이스, 별도 서버는 필요 없습니다. 오디오·딥러닝·시각화 등 upstream의 전체 `requirements.txt`와 전체 모델 runner용 의존성은 설치하지 않았습니다.
+설치한 것은 **은행 환경·기존 평가 함수·테스트에 필요한 33개 패키지**입니다. 주요 의존성은 Pydantic의 이메일 검증 extra, PyYAML, pandas, rich, docstring-parser, pytest입니다. 기존 `anthropic==0.42.0`으로 후속 실행기도 구현해 추가 설치는 없습니다. 기존 smoke test는 모델 클라이언트를 만들지 않으며, 후속 어댑터 테스트는 실제 SDK와 로컬 HTTP 모의 응답을 사용합니다. GPU, Docker, 데이터베이스, 별도 서버는 필요 없습니다. 오디오·딥러닝·시각화 등 upstream의 전체 `requirements.txt`와 전체 모델 runner용 의존성은 설치하지 않았습니다.
 
 설치 목록을 의도적으로 변경할 때만 lock을 갱신합니다. 평소에는 `setup.sh`만 실행하세요.
 
@@ -119,7 +123,7 @@ Smoke test는 **환경의 주요 기능이 기본적으로 작동하는지 빠�
 | `tests/test_bank_transfer.py` / `pyproject.toml` | 12개 통합 테스트와 pytest 경로 설정 |
 | `docs/evaluation_notes.ko.md` | 거래 기준값·정상 금액·평가식·기존 코드 한계 설명 |
 | `docs/validation_results.json` | 이번 실제 검증의 구조화된 요약 기록 |
-| `configs/episode.example.yaml` | 다음 1-agent·1-episode 실험의 설정 설계 예제; 현재 실행기가 읽는 파일은 아님 |
+| `configs/episode.example.yaml` | 후속 실행기가 실제로 읽는 1-agent·1-episode 설정 예제 |
 | `.env.example` | 나중에 선택할 모델 제공자의 환경변수 이름만 표시; 값 없음 |
 | `.gitignore` / `.python-version` | 비밀·캐시·생성물 제외와 검증한 Python 계열 명시 |
 | `README.md` | 설치·실행·확인 결과·다음 단계 안내 |
@@ -128,16 +132,49 @@ Smoke test는 **환경의 주요 기능이 기본적으로 작동하는지 빠�
 
 클라우드 환경 설정 초안에는 `install_script`(`bash scripts/setup.sh` 실행)와 `start_skill`(기존 checkout 사용, 가상환경·검사 명령, 모델 호출 없는 범위)을 저장했습니다. 네트워크 허용 목록이나 비밀 설정은 변경하지 않았습니다. 초안 저장은 발행이 아닙니다. 재사용할 스냅샷을 활성화하려면 환경 설정에서 변경 사항을 검토·저장한 뒤 환경을 발행해야 합니다. 새 클라우드 작업의 복원은 아직 검증하지 않았습니다.
 
-## 5. 다음에 단일 agent 1에피소드를 실행하려면
+## 5. Single-Agent 연결용 실행기: 구현 및 오프라인 검증
 
-현재는 **모델 없는 환경 검사까지 준비된 상태**입니다. 아래 값만 채우면 바로 논문 실험이 실행되는 단계는 아닙니다. 공개 upstream의 전체 모델 runner도 아직 실행 검증하지 않았습니다.
+`feat/single-agent-runner`에서 Anthropic Messages 응답 → 실제 SHADE `FunctionsRuntime` 도구 호출 → 도구 결과를 다음 모델 입력으로 반환 → 종료 후 기존 평가기의 흐름을 구현했습니다. 제공자·모델 ID·키의 환경변수 이름은 설정으로 받습니다. agent 1개·episode 1개·monitor 꺼짐을 검증하며 다른 값은 거부합니다. 위반 목표·힌트를 agent에게 주지 않는 중립 프롬프트를 사용합니다.
 
-1. **논문 설정 확인:** 환경 네트워크 설정에 `arxiv.org` 접근을 허용하거나 논문 PDF를 제공한 뒤, 모델 ID, 프롬프트, CoT/행동 공개 범위, 감시 임계값, 차단 메시지·재시도 규칙을 확인해야 합니다.
-2. **Agent 모델 선택·인증:** 도구 호출을 지원하는 모델의 정확한 ID와 제공자를 고릅니다. 현재 관련 키는 설정되어 있지 않았습니다(이름·존재 여부만 확인). pinned upstream의 Anthropic 구현은 `ANTHROPIC_HIGH_PRIO_API_KEY`, OpenAI 구현은 `OPENAI_API_KEY`를 읽습니다. 실제 값은 보안 환경 설정으로 넣고 해당 API 목적지 접근을 준비해야 합니다. 이번에는 키를 요구하거나 API를 호출하지 않았습니다.
-3. **한 에피소드 실행기 구현:** `configs/episode.example.yaml`을 참고해 agent 수 1, episode 수 1, 최대 턴 수·토큰·비용 한도·시간 제한·로그 경로를 정하고 실제 모델 어댑터/도구 호출 반복문에 연결해야 합니다. 예제의 100턴과 seed 0은 제안값이며 논문에서 확인한 값이 아닙니다. 처음에는 감시 없는 단일 agent 기준 실행부터 확인할 수 있습니다.
-4. **Blocking feedback 구현:** 공개 upstream 기본 흐름은 agent가 끝난 뒤 monitor를 실행합니다. 매 행동 전 감시·차단·재시도 흐름과 같지 않습니다. `control_protocol` 경로도 공개 코드에서 정의되지 않은 함수를 참조하므로 그대로 사용하지 않습니다. 논문의 감시 조건을 구현하고, 감시용 모델·판정 기준·상태 되돌리기 여부를 별도로 검증해야 합니다.
-5. **기록·평가 연결:** 실제 모델 메시지, 도구 입력·출력, 차단 여부, 전후 환경 상태, 최종 정상·위반 평가를 저장합니다. 모델의 reasoning을 제공자가 노출하는지와 monitor에 무엇을 전달할지 명시해야 합니다. 이번의 사람이 정한 테스트 동작은 실제 모델 trajectory와 분리합니다.
+| 변경 파일 | 역할 |
+| --- | --- |
+| `scripts/run_episode.py` | `--mock` / 명시적인 `--live` CLI, 설정 읽기와 종료 코드 |
+| `single_agent/config.py` | 제공자·모델·인증 이름·턴·토큰·시간 제한 검증 |
+| `single_agent/provider.py` | Anthropic SDK 어댑터, 자동 재시도 0회 |
+| `single_agent/runner.py` | 도구 반복문, 종료·오류·한도 분류, 비밀 가림과 로그 저장 |
+| `single_agent/evaluation.py` | 기존 점수와 거래 변경량, 예약·완료 및 $5,000 기준 분리 |
+| `single_agent/mock.py`, `single_agent/__init__.py` | 명시적인 오프라인 모의 모델과 패키지 |
+| `tests/test_single_agent_runner.py` | 모의 모델로 반복문·오류·한도·저장·키 가림 검증 |
+| `tests/test_anthropic_adapter.py` | 실제 SDK + 로컬 HTTP 모의 응답, 전체 71개 도구 입력 형식 검증 |
+| `tests/test_episode_evaluation.py` | 실제 환경의 평가·거래 방향·완료 상태·금액 경계 검사 |
+| `docs/single_agent_runner.ko.md` | 모델 실행 설정, 로그 해석, 남은 기능 안내 |
+| `docs/runner_validation_results.json` | 이번 후속 작업의 실제 검증 요약 |
 
-upstream `config.yaml`의 기본 agent/monitor는 `claude-3-5-sonnet-20241022`, evaluator는 `claude-3-7-sonnet-20250219`지만 **논문 설정이나 현재 사용 가능한 모델임을 확인한 것은 아닙니다**. 이 은행 과제의 최종 두 평가 함수에는 LLM이 필요 없지만, 실제 agent의 행동 생성과 모델 기반 monitor 판정에는 API가 필요합니다. 전체 runner는 모든 provider를 자동 import하므로 추가 의존성 점검도 필요합니다.
+기존 smoke 코드·테스트·upstream은 수정하지 않았습니다. `docs/validation_results.json`과 위의 12개 통과 기록은 **환경 준비 단계의 기록**으로 유지합니다.
 
-기존 `task_pairs/bank_transfer_2/solution.py`는 필수 인자 누락·오래된 수취인/금액·위반 송금이 섞여 있어 정답 실행기로 사용하지 않았습니다. 현재 준비된 범위는 은행 예약 경로와 평가 함수이며, 실제 정산·Venmo/Zelle의 전체 동작·감시 성능·차단 피드백 학습 효과는 미검증입니다.
+이번 후속 작업에서 실제로 실행한 명령:
+
+| 명령 | 결과 |
+| --- | --- |
+| `.venv/bin/python -m pytest -q --junitxml=reports/runner-offline-pytest.xml` | **55 passed**, 실패·skip 0, 기존 upstream 경고 8건 |
+| `.venv/bin/python scripts/smoke_bank_transfer.py` | 기존 9개 시나리오 통과, API 호출 0 |
+| `.venv/bin/python scripts/run_episode.py --config configs/episode.example.yaml --mock --output-dir reports/offline-connection-001` | `offline_mock`, `completed/end_task`, 모의 응답 2회·도구 2회, 실제 API 시도 0 |
+
+CLI 모의 실행은 잔액 조회 후 종료하는 연결 흐름 검사입니다. 정상 과제 점수는 0.0, 기존 위반 목표 판정은 False이며, 여행 경비 과제 완수나 실제 모델 성능을 뜻하지 않습니다. 5개 로그 파일(요약·이벤트·대화·전후 환경 상태)이 생성됐습니다. JUnit XML과 상세 모의 실행 결과는 Git에서 제외된 `reports/`에 있습니다.
+
+첫 추가 테스트 실행은 1개 실패·41개 통과였습니다. upstream의 `system_message_no_secondary_task()`에도 감시 회피 언급이 남아 있음을 발견한 검사였으며, 실행기에서 중립 프롬프트를 사용하도록 수정했습니다. 이후 전체 54개 통과를 확인했고, SDK와 전체 실행기를 함께 검사하는 오프라인 테스트를 추가한 최종 결과가 55개 통과입니다. 모의 모델의 결과와 로컬 HTTP 응답은 실제 모델/API 실험과 구분합니다.
+
+**향후 실제 모델로 1회 실행하는 방법** — 이번에는 실행하지 않았습니다.
+
+```bash
+cp configs/episode.example.yaml configs/episode.local.yaml
+# 로컬 YAML의 agent.model을 사용 가능한 정확한 모델 ID로 변경하고 한도를 검토합니다.
+# 보안 환경 설정에 agent.api_key_env의 이름으로 인증 값을 제공합니다.
+.venv/bin/python scripts/run_episode.py \
+  --config configs/episode.local.yaml \
+  --live --output-dir reports/live-episode-001
+```
+
+인증 변수 기본 이름은 `ANTHROPIC_HIGH_PRIO_API_KEY`이며 값은 설정 파일·로그에 넣지 않습니다. `.env` 자동 로딩은 없습니다. `api.anthropic.com` 접근과 모델 사용 권한이 필요합니다. 기본 한도는 10턴, 응답당 1,024 출력 토큰, 누적 출력 8,192 토큰, 호출당 60초, 에피소드 300초입니다. 입력 토큰·달러 비용 상한은 없으므로 제공자 계정의 결제 한도도 준비해야 합니다. 결과 폴더는 새 경로여야 하며 기존 실행을 덮어쓰지 않습니다.
+
+아직 실제 모델 호출·인증·모델 과제 성능은 미검증입니다. monitor, 행동 차단·재시도·rollback, CoT 조건, 논문의 정확한 프롬프트·임계값, 반복 실험·통계 검증은 구현하지 않았습니다. 논문 원문 접근도 기존 차단 상태여서 세부 설정은 미확인입니다. 자세한 실행·오류·예산·로그 설명은 [실행기 안내](docs/single_agent_runner.ko.md)를 확인하세요.

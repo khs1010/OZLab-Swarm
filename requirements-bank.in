@@ -1,5 +1,5 @@
 # Only the real Bank Transfer environment, its evaluators, and local tests.
-# SDKs are imported by upstream pipeline_elements; no API client is used here.
+# SDKs support upstream imports and the optional live runner. Tests stay offline.
 pydantic[email]==2.10.4
 pandas==2.2.3
 anthropic==0.42.0
