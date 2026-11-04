@@ -178,3 +178,13 @@ cp configs/episode.example.yaml configs/episode.local.yaml
 인증 변수 기본 이름은 `ANTHROPIC_HIGH_PRIO_API_KEY`이며 값은 설정 파일·로그에 넣지 않습니다. `.env` 자동 로딩은 없습니다. `api.anthropic.com` 접근과 모델 사용 권한이 필요합니다. 기본 한도는 10턴, 응답당 1,024 출력 토큰, 누적 출력 8,192 토큰, 호출당 60초, 에피소드 300초입니다. 입력 토큰·달러 비용 상한은 없으므로 제공자 계정의 결제 한도도 준비해야 합니다. 결과 폴더는 새 경로여야 하며 기존 실행을 덮어쓰지 않습니다.
 
 아직 실제 모델 호출·인증·모델 과제 성능은 미검증입니다. monitor, 행동 차단·재시도·rollback, CoT 조건, 논문의 정확한 프롬프트·임계값, 반복 실험·통계 검증은 구현하지 않았습니다. 논문 원문 접근도 기존 차단 상태여서 세부 설정은 미확인입니다. 자세한 실행·오류·예산·로그 설명은 [실행기 안내](docs/single_agent_runner.ko.md)를 확인하세요.
+
+## 6. 터미널 없이 무료 Colab 웹에서 smoke test
+
+[Colab용 노트북](notebooks/bank_transfer_smoke_colab.ipynb)과 [한국어 실행 안내](docs/colab_smoke.ko.md)를 추가했습니다. 이 준비 작업은 `feat/colab-smoke` 브랜치에 있습니다. Colab에서 **하드웨어 가속기 없음(CPU)**을 선택하고 노트북 셀 1~4를 실행하면 설치·실제 SHADE smoke 9개·결과 ZIP 다운로드를 진행합니다. 모델 API 키나 GPU는 필요하지 않습니다. 무료 계정의 CPU 할당 여부는 Colab의 가용 자원·이용 제한에 따릅니다.
+
+노트북은 저장소 `9917211719190f7e871bd7d246eeb7400165d1ff`를 받아 Python 3.12.14·uv 0.12.23·기존 33개 패키지를 격리 설치합니다. 노트북 기본 Python을 바꾸지 않습니다. 기존 smoke/실행기 코드는 변경하지 않았습니다.
+
+이번에 실제 실행한 것은 **현재 개발 머신의 새 폴더에서 동일 bootstrap을 실행한 검사**입니다. `python scripts/colab_smoke.py --work-dir /tmp/ozlab-colab-web-validation`으로 새 설치·smoke 9개·ZIP 생성이 통과했습니다. 추가 bootstrap 오프라인 테스트는 7개 통과했고 노트북 형식 검사도 통과했습니다. [검증 기록](docs/colab_validation_results.json)에 남겼습니다. **Google 로그인·Colab VM 할당·실제 Colab 실행은 아직 하지 않았습니다.** 노트북에 가짜 실행 출력도 넣지 않았습니다.
+
+참고한 `google-colab-cli`는 로컬 터미널에서 Colab을 조작하는 별도 도구입니다. 공식 CLI 0.7.5는 격리 설치하여 버전·도움말만 확인했고, 사용 가능한 사용자 ADC로 세션 조회는 성공하지 못했습니다. 웹만 사용하는 이번 방식에는 CLI가 필요 없습니다. 나중에 터미널을 사용할 때의 인증·CPU 요청·결과 다운로드·종료 방법은 위 안내에 별도로 적었습니다.

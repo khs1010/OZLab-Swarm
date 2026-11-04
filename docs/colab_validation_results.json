@@ -1,0 +1,58 @@
+{
+  "scope": "colab_web_preparation_and_local_validation_only",
+  "generated_at_utc": "2026-11-04T07:47:38.386091+00:00",
+  "branch": "feat/colab-smoke",
+  "smoke_source_commit": "9917211719190f7e871bd7d246eeb7400165d1ff",
+  "upstream_commit": "6614e77191c1f8e2d0c44c123c6f915905ebafae",
+  "local_fresh_bootstrap": {
+    "command": "python scripts/colab_smoke.py --work-dir /tmp/ozlab-colab-web-validation",
+    "status": "passed",
+    "context": {
+      "scope": "environment_smoke_only_not_model_experiment_or_paper_reproduction",
+      "started_at_utc": "2026-11-04T07:44:02.257760+00:00",
+      "source_commit": "9917211719190f7e871bd7d246eeb7400165d1ff",
+      "host_platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+      "bootstrap_python": "3.12.14",
+      "test_python": "3.12.14",
+      "colab_detected": false,
+      "status": "passed",
+      "smoke_exit_code": 0,
+      "passed_scenarios": 9,
+      "upstream_commit": "6614e77191c1f8e2d0c44c123c6f915905ebafae",
+      "finished_at_utc": "2026-11-04T07:44:11.726298+00:00"
+    },
+    "passed_smoke_scenarios": 9,
+    "model_api_calls": 0,
+    "result_zip_valid": true
+  },
+  "offline_bootstrap_tests": {
+    "command": ".venv/bin/python -m pytest -q tests/test_colab_smoke.py --junitxml=reports/colab-bootstrap-offline-tests.xml",
+    "passed": 7,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "notebook_validation": {
+    "nbformat_validate": "passed",
+    "saved_outputs": "empty"
+  },
+  "colab_cli": {
+    "installed_separately": "google-colab-cli==0.7.5",
+    "reviewed_official_source_commit": "463fd364e814d353990f31c96e6fdd3804495125",
+    "version_and_help": "passed",
+    "existing_adc_sessions_probe": "failed_no_vm_allocated",
+    "google_oauth_login": "not_run"
+  },
+  "actual_colab_execution": "not_run_requires_user_browser_login_and_cell_execution",
+  "colab_free_account_allocation": "not_verified_no_free_only_flag_in_cli",
+  "source_sha256": {
+    "scripts/colab_smoke.py": "3301d08b2a4022e4e3b8a98d01a48ff3aea3ecf409ac0e9cb18dc13d82d9700a",
+    "notebooks/bank_transfer_smoke_colab.ipynb": "6d76131eee3e35878c06d2ccb45a3401c272dd5214dc14a6a3ebf45270d24dce",
+    "tests/test_colab_smoke.py": "fdb6dddfcef3326d1704a3ba1004341175828a8bfe8bd149c91e324ebcced500"
+  },
+  "pinned_public_raw_source_check": {
+    "status": 200,
+    "explicit_authentication_headers": false,
+    "content_matches_upstream_pin": true
+  }
+}
