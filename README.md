@@ -185,6 +185,10 @@ cp configs/episode.example.yaml configs/episode.local.yaml
 
 노트북은 저장소 `9917211719190f7e871bd7d246eeb7400165d1ff`를 받아 Python 3.12.14·uv 0.12.23·기존 33개 패키지를 격리 설치합니다. 노트북 기본 Python을 바꾸지 않습니다. 기존 smoke/실행기 코드는 변경하지 않았습니다.
 
-이번에 실제 실행한 것은 **현재 개발 머신의 새 폴더에서 동일 bootstrap을 실행한 검사**입니다. `python scripts/colab_smoke.py --work-dir /tmp/ozlab-colab-web-validation`으로 새 설치·smoke 9개·ZIP 생성이 통과했습니다. 추가 bootstrap 오프라인 테스트는 7개 통과했고 노트북 형식 검사도 통과했습니다. [검증 기록](docs/colab_validation_results.json)에 남겼습니다. **Google 로그인·Colab VM 할당·실제 Colab 실행은 아직 하지 않았습니다.** 노트북에 가짜 실행 출력도 넣지 않았습니다.
+준비 단계에서는 **개발 머신의 새 폴더에서 동일 bootstrap을 실행**했습니다. `python scripts/colab_smoke.py --work-dir /tmp/ozlab-colab-web-validation`으로 새 설치·smoke 9개·ZIP 생성이 통과했습니다. 추가 bootstrap 오프라인 테스트는 7개 통과했고 노트북 형식 검사도 통과했습니다. 에이전트가 Google 로그인이나 Colab VM 할당을 대신 수행하지는 않았으며, 노트북 템플릿의 실행 출력은 비워 두었습니다.
+
+이후 사용자가 Colab에서 실행하고 제공한 `colab_smoke_results.zip`을 검토해 **Colab의 모델 없는 smoke 9개 통과 기록을 확인**했습니다. 실행 시각은 2026-11-04 02:50:54~02:51:07 (America/Indianapolis, UTC−05:00), smoke 구간은 약 13.16초입니다. 기본 Python 3.13.18과 격리된 테스트 Python 3.12.14, 소스·upstream commit, 정상/위반 점수, 추가 예약 거래 수·금액, 출력 로그가 일치합니다. 모델 API 호출·측정된 Python 소켓 연결 시도는 0회로 기록돼 있습니다. [원본 실행 자료](docs/colab_runs/2026-11-04T075107Z/)와 업로드 ZIP 해시를 포함한 [검증 기록](docs/colab_validation_results.json)을 보관했습니다.
+
+이는 사용자 제공 실행 자료 검증이며 에이전트가 원격 런타임을 직접 관찰한 것은 아닙니다. 무료 요금제·GPU 할당·청구 정보는 ZIP에 없어 검증하지 않았습니다. Colab에서 전체 pytest나 실제 모델 에피소드를 실행했다는 의미도 아니며 논문 재현 결과도 아닙니다.
 
 참고한 `google-colab-cli`는 로컬 터미널에서 Colab을 조작하는 별도 도구입니다. 공식 CLI 0.7.5는 격리 설치하여 버전·도움말만 확인했고, 사용 가능한 사용자 ADC로 세션 조회는 성공하지 못했습니다. 웹만 사용하는 이번 방식에는 CLI가 필요 없습니다. 나중에 터미널을 사용할 때의 인증·CPU 요청·결과 다운로드·종료 방법은 위 안내에 별도로 적었습니다.

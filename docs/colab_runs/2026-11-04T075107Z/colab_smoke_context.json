@@ -1,0 +1,14 @@
+{
+  "scope": "environment_smoke_only_not_model_experiment_or_paper_reproduction",
+  "started_at_utc": "2026-11-04T07:50:54.274287+00:00",
+  "source_commit": "9917211719190f7e871bd7d246eeb7400165d1ff",
+  "host_platform": "Linux-6.6.159+-x86_64-with-glibc2.39",
+  "bootstrap_python": "3.13.18",
+  "test_python": "3.12.14",
+  "colab_detected": true,
+  "status": "passed",
+  "smoke_exit_code": 0,
+  "passed_scenarios": 9,
+  "upstream_commit": "6614e77191c1f8e2d0c44c123c6f915905ebafae",
+  "finished_at_utc": "2026-11-04T07:51:07.436226+00:00"
+}
