@@ -65,6 +65,8 @@
 
 큰 profile은 **20시간까지 허용하는 run 시간 상한**을 포함하며 무료·Pro 런타임이 그만큼 유지된다는 뜻이 아닙니다. 기록을 자르지 않고 누적하므로 긴 도구 출력이나 10에피소드 전체 기록이 Qwen context 한도를 넘을 수 있습니다. 이때 중단된 run은 10에피소드 완료 결과가 아닙니다. 생성 예산·시간·문맥 제한을 없애서 억지로 끝내기보다, 어느 제한에 도달했는지 기록하고 별도 실행 조건으로 조정합니다.
 
+턴 한도는 해당 에피소드를 끝내고 다음 에피소드로 이어갑니다. 따라서 `run_complete=true`여도 일부 에피소드의 종료 이유가 `max_turns`일 수 있습니다. 전체 토큰·문맥·시간 한도와 오류는 run을 중단합니다. 프로세스 하드 시간 초과는 별도 기록하며, 강제 종료 시 마지막 상태 체크포인트만 남고 최종 평가를 계산하지 못할 수 있습니다. 공개 요약에도 이 경우 미완료로 표시합니다.
+
 모델 한 번·과제 하나에서 pilot이 확인된 뒤 반복 실행으로 확장합니다. 20개 독립 run은 각 run 사이에 actor 대화와 환경을 새로 시작해야 합니다. seed 계획과 실행 조건을 따로 기록하고, 동일한 기록을 이어서 20번 호출하는 방식을 독립 run이라고 부르지 않습니다. 논문에 없는 무감시 대조군이 이미 있었다고 가정하지도 않습니다.
 
 노트북 내부에서 사용하는 실행 명령의 형태는 아래와 같습니다. **웹 사용자는 터미널에 입력할 필요가 없습니다.** `python`은 노트북 설치 셀이 만든 GPU용 가상환경의 실행 파일이어야 합니다.
@@ -77,6 +79,45 @@ python scripts/run_local_monitoring.py \
 ```
 
 확장 profile은 `--config configs/local-monitoring-paper-protocol.json`으로 구분합니다. 공식 `google-colab-cli`를 사용하는 절차는 이 웹 실행의 필수 단계가 아닙니다.
+
+## google-colab-cli 사용 가능 여부
+
+[공식 CLI](https://github.com/googlecolab/google-colab-cli)의 코드(commit `463fd364e814d353990f31c96e6fdd3804495125`)와 격리 설치한 **0.7.5**의 `version`, `run --help`를 확인했습니다. GPU 선택과 원격 Python 실행·파일 다운로드 기능이 있어 실행 구조는 지원합니다. 다만 **본인 터미널에서 Google OAuth 로그인이 필요**합니다. 현재처럼 Colab 웹만 쓰는 경우 위 노트북이 같은 실행 코드를 사용합니다. 이 개발 세션에는 사용 가능한 사용자 인증이 없으며 실제 CLI 로그인·Pro VM 할당·원격 실행은 하지 않았습니다. 인증 코드나 토큰을 채팅에 보내지 마세요.
+
+나중에 본인 터미널을 사용할 수 있을 때의 명령 예시입니다. CLI는 실험용 GPU 환경과 다른 격리 환경에 설치합니다. CLI 문서의 인증 기본값과 설치 버전의 동작이 다를 수 있어 `--auth oauth2`를 명시합니다. `colab auth`는 VM의 GCP 인증 명령이므로 CLI 계정 로그인과 혼동하지 마세요.
+
+```bash
+uv tool install google-colab-cli==0.7.5
+colab --auth oauth2 sessions
+# 위 명령에서 요청하면 본인 브라우저와 터미널에서 로그인합니다.
+
+# 기존 세션과 겹치지 않는 이름과 계정에서 가능한 GPU를 지정합니다.
+colab --auth oauth2 run --session ozlab-cot-pilot-001 \
+  --gpu L4 --keep --timeout 10800 \
+  scripts/colab_monitoring_job.py --stage all --profile pilot
+
+# 실행 실패/한도 도달 후에도 기록이 생성됐다면 다운로드합니다.
+colab --auth oauth2 download --session ozlab-cot-pilot-001 \
+  /content/ozlab-cot-results/public_summary.json ./public_summary.json
+colab --auth oauth2 download --session ozlab-cot-pilot-001 \
+  /content/ozlab-cot-results/private_results.zip ./private_results.zip
+
+# 다운로드 완료 또는 실행 실패 후 반드시 직접 정리하고 세션 목록을 확인합니다.
+colab --auth oauth2 stop --session ozlab-cot-pilot-001
+colab --auth oauth2 sessions
+```
+
+`--keep`은 다운로드할 때까지 VM을 유지하므로 오류가 나도 `stop`을 실행해야 합니다. CLI의 timeout 처리는 버전에 따라 차이가 있어 예시에서는 전체 설치·파일럿을 기다릴 충분한 상한을 지정했고, 자식 실행기의 실험·생성·하드 시간 제한은 별도로 적용합니다. CLI가 전달하는 것은 파일 본문뿐이며 저장소를 업로드하지 않으므로 `colab_monitoring_job.py`가 저장소와 upstream을 고정 commit으로 준비합니다. CLI가 덧붙이는 코드와 `__file__` 없는 실행 형태도 오프라인으로 검사했습니다. 이 검사는 실제 인증·GPU 할당 성공을 뜻하지 않습니다.
+
+CLI에 필요한 Google 로그인·Colab API·배정된 runtime WebSocket 접근과 Hugging Face 모델 다운로드가 네트워크에서 허용되어야 합니다. 현재 개발 머신의 Hugging Face 요청은 프록시 `403 Forbidden`으로 거절되어 실제 tokenizer 검사는 실행하지 못했습니다. Colab에서는 이 네트워크 조건을 별도로 확인해야 합니다.
+
+## 저장되는 파일과 검증 상태
+
+실행 결과 폴더의 `process.json`, `process_result.json`과 `worker.stdout.log`는 프로세스 한도·종료를 기록합니다. `run/summary.json`은 에피소드 종료와 평가, `run/events.jsonl`은 모델 입력·원본 응답·도구 인자·결과, `run/actor_history.json`은 누적 이력을 담습니다. `run/episode-NNN/`에는 실행 전후 상태, 도구별 상태 사본, 평가와 해당 에피소드 종료 시점의 대화 사본이 저장됩니다. 실제 backend의 revision·패키지·GPU·추론 설정도 summary의 `model_environment`에 보관합니다.
+
+노트북의 마지막 셀은 **공개 가능한 수치 요약** `public_summary.json`과 **개인 보관 원본** `private_results.zip`을 따로 내려받습니다. 원본 ZIP은 GitHub에 올리지 않습니다. 실패 뒤에도 최신 실행을 가리키도록 실행 전에 결과 포인터를 갱신하며, 이전 실행 결과나 모의 모델 결과를 실제 모델 결과로 포장하는 경우는 거절합니다.
+
+개발 머신에서 실제 수행한 명령·통과·미실행·차단 항목은 [local_monitoring_validation.json](local_monitoring_validation.json)에 기록합니다. 모델 응답을 작성해 넣은 검사는 실제 SHADE를 사용하더라도 **모의 모델 검증**입니다. 새 노트북 출력은 비워 두었고 실제 Qwen actor/monitor 성능은 아직 측정하지 않았습니다.
 
 ## 결과에서 무엇을 봐야 하나
 

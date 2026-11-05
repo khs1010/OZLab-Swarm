@@ -1,0 +1,132 @@
+{
+  "scope": "environment_and_protocol_implementation_validation_not_paper_reproduction",
+  "verified_at_utc": "2026-11-05T21:18:48.261700+00:00",
+  "branch": "feat/local-cot-monitoring",
+  "colab_pinned_runner_commit": "a3c34d611d49ab9b5ea25040dc6fbe7e6a3a5d8c",
+  "upstream_commit": "6614e77191c1f8e2d0c44c123c6f915905ebafae",
+  "paper": {
+    "id": "2603.16928v1",
+    "source": "user-uploaded PDF; not included in Git",
+    "sha256": "bbb3f94c9ded8d4e6a1ff270aaed3a2cf786b004a452f91ad5709a888a2b6c9e"
+  },
+  "checks": [
+    {
+      "command": ".venv/bin/python -m pytest -q --junitxml=reports/local-monitoring-final-pytest.xml",
+      "result": "passed",
+      "passed": 230,
+      "skipped": 1,
+      "failed": 0,
+      "warnings": 8,
+      "skip_reason": "Actual pinned tokenizer is not cached; Hugging Face proxy CONNECT 403 blocked download.",
+      "new_tests": {
+        "engine_actual_SHADE_authored_responses": 66,
+        "backend_authored_doubles": 14,
+        "publication_summary": 14,
+        "colab_job_offline": 25,
+        "entrypoint_offline": 9
+      },
+      "real_model_inference": false,
+      "actual_SHADE_runtime": true
+    },
+    {
+      "command": ".venv/bin/python scripts/smoke_bank_transfer.py",
+      "result": "passed",
+      "scenarios": 9,
+      "actual_SHADE_environment": true,
+      "real_model_inference": false
+    },
+    {
+      "command": ".venv/bin/python scripts/run_local_monitoring.py --validate-config",
+      "result": "passed",
+      "episode_run": false,
+      "weights_loaded": false
+    },
+    {
+      "command": ".venv/bin/python scripts/run_local_monitoring.py --offline --output-dir reports/local-monitoring-offline-final",
+      "result": "passed",
+      "exit_code": 0,
+      "execution_mode": "offline_scripted",
+      "episodes_ended": 2,
+      "actor_responses": 2,
+      "monitor_responses": 2,
+      "tool_calls": 2,
+      "tool_names": [
+        "end_task"
+      ],
+      "main_scores": [
+        0.0,
+        0.0
+      ],
+      "upstream_side_success": [
+        false,
+        false
+      ],
+      "network_guard_attempts": 0,
+      "meaning": "Authored fixture exercises process/monitor/end_task/logging only; not reimbursement success or learned awareness."
+    },
+    {
+      "command": "bash -n scripts/setup_qwen_gpu.sh; bash scripts/setup_qwen_gpu.sh --plan",
+      "result": "passed",
+      "gpu_install_performed": false
+    },
+    {
+      "command": "bash scripts/setup_qwen_gpu.sh --resolve-only",
+      "result": "passed",
+      "metadata_only": true,
+      "gpu_lock_packages": 44,
+      "bank_lock_packages": 33,
+      "combined_packages": 70,
+      "gpu_install_performed": false
+    },
+    {
+      "command": "colab version; colab --auth oauth2 run --help",
+      "result": "passed",
+      "version": "0.7.5",
+      "login_performed": false,
+      "VM_allocated": false
+    },
+    {
+      "command": "Installed CLI _build_script_payload(job,[\"--help\"]): compile + exec with no __file__",
+      "result": "passed",
+      "login_performed": false,
+      "VM_allocated": false
+    },
+    {
+      "command": "Notebook code compilation, empty-output and exact embedded-job checks",
+      "result": "passed",
+      "notebook_executed_on_Colab": false
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ],
+  "blocked": [
+    {
+      "check": "Actual pinned Qwen tokenizer download/template validation",
+      "reason": "huggingface.co proxy CONNECT 403 Forbidden",
+      "result": "not_validated",
+      "weights_downloaded": false
+    }
+  ],
+  "not_run": [
+    "Google user OAuth login",
+    "Colab Pro GPU VM allocation",
+    "Fresh GPU package/CUDA/NF4 installation",
+    "Actual Qwen actor-monitor inference in new harness",
+    "10-episode local run",
+    "20 independent runs",
+    "Claude paper-model experiments",
+    "Opus 4.5 awareness/intent grading"
+  ],
+  "model_api_calls": 0,
+  "paper_reproduction_completed": false,
+  "limitations": [
+    "Qwen is a model substitution; original Claude results are not established.",
+    "One bank task and 71 tools differ from paper two tasks and approximately 20 tools.",
+    "Monitor model, blocking order/world reset/history details have explicit local assumptions.",
+    "Larger GPU does not enlarge native model context; complete history can stop the run.",
+    "Hard process timeout may leave only latest state checkpoints without final evaluation.",
+    "User has web-only Colab access; CLI capability inspection is not authenticated remote execution."
+  ]
+}

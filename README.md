@@ -22,6 +22,8 @@ QWEN_PYTHON_VERSION=3.12.16 bash scripts/setup_qwen_gpu.sh
 
 `run/summary.json`에서 에피소드별 종료·점수를 확인합니다. `end_task`나 실행 종료 코드 0은 정상 과제 성공과 별개입니다. 원본 모델 출력·상태·ZIP은 `reports/` 등에 개인 보관하고 Git에 올리지 않습니다. 공개용 요약은 `local_monitoring/summary.py`의 허용 목록으로 따로 생성합니다. 상세 검증과 실행하지 못한 항목은 [검증 기록](docs/local_monitoring_validation.json)에 구분합니다.
 
+이번 실제 검증은 **pytest 230 passed / 1 skipped**, 기존 smoke **9개 통과**입니다. skip은 이 머신의 Hugging Face 프록시 403으로 실제 tokenizer 검사를 못 한 항목입니다. 오프라인 실행은 작성된 actor/monitor 응답 4개로 실제 SHADE의 `end_task`를 2번 실행했고, 정상 점수는 두 에피소드 모두 0.0입니다. GPU 설치는 의존성 해석만 확인했으며 실제 CUDA 설치·새 Qwen 감시 실행·Google 인증·Pro VM 할당은 하지 않았습니다. 코드가 사용하는 CLI 실행 형식은 검사했지만, 웹 사용자는 노트북 셀 1~5를 실행하면 됩니다.
+
 Swarm Alignment 해커톤의 첫 단계로, **SHADE-Arena의 실제 `bank_transfer_2` 환경을 모델 API 없이 실행·점검**했습니다. 환경 준비 결과이며, 논문 재현 성공이나 에이전트 성능 측정 결과가 아닙니다.
 
 후속 단계로 **실제 모델을 연결할 수 있는 1-agent·1-episode 실행기**도 구현했습니다. 이번 작업에서는 monitor를 끄고 오프라인 모의 모델로만 검증했습니다. 실제 API 실행 방법은 [실행기 안내](docs/single_agent_runner.ko.md)에 있습니다.
