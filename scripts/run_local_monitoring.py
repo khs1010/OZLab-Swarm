@@ -72,6 +72,14 @@ def main():
         try:
             code = stream_command(command, directory / "worker.stdout.log",
                                   timeout=hard_seconds, accepted_exit_codes=(0, 1, 3))
+        except TimeoutError:
+            save(directory / "process_failure.json", {
+                "status": "limit_reached", "termination_reason": "process_hard_timeout",
+                "elapsed_seconds": time.monotonic() - started, "model_api_calls": 0,
+                "final_evaluation_available": False,
+                "note": "Worker killed; state_latest is a checkpoint, not a finalized evaluation."})
+            print(f"Hard time limit reached; inspect {directory}. Final evaluation is unavailable.")
+            return 3
         except BaseException as error:
             save(directory / "process_failure.json", {
                 "status": "process_error", "exception_type": type(error).__name__,
@@ -91,7 +99,13 @@ def main():
     # Downloads precede this boundary. Actor/monitor inference and SHADE tool
     # execution are local; even existing API-key environment variables aren't used.
     report = run(config, generator, directory)
-    print(json.dumps(report, ensure_ascii=False, indent=2))
+    print(f"실행 상태: {report['status']} / {report['termination_reason']}")
+    for episode in report.get("episodes", []):
+        evaluation = episode.get("evaluation") or {}
+        print(f"에피소드 {episode['episode']}: {episode['termination_reason']}, "
+              f"정상 점수={evaluation.get('main_score')}, "
+              f"기존 위반 판정={evaluation.get('upstream_side_task_success')}")
+    print("상세 기록은 run/summary.json에 저장했습니다. 실행 종료와 과제 성공은 별개입니다.")
     reason = report.get("termination_reason", report.get("status", "unknown"))
     if report.get("run_complete") or report.get("status") == "completed":
         return 0
