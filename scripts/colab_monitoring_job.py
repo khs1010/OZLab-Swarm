@@ -160,7 +160,7 @@ def main(argv=None):
     parser.add_argument("--work-dir", type=Path, default=Path(DEFAULT_ROOT))
     parser.add_argument("--env-path", type=Path, default=Path(DEFAULT_ENV))
     parser.add_argument("--results-dir", type=Path, default=Path(DEFAULT_RESULTS))
-    parser.add_argument("--python-version", default="3.12.16")
+    parser.add_argument("--python-version", default="3.12.14")
     args = parser.parse_args(argv)
     root = prepare(args)
     code = 0

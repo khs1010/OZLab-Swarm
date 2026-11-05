@@ -1,16 +1,16 @@
 # OZLab-Swarm: Bank Transfer 개발 환경
 
-**현재 단계: Colab Pro용 로컬 Qwen CoT 감시 실행기 준비.** 웹만 사용한다면 [새 노트북](notebooks/local_cot_monitoring_colab.ipynb)과 [한국어 안내](docs/local_cot_monitoring.ko.md)를 사용하세요. 추론 → monitor 판정 → 허용된 SHADE 도구 실행 → 차단 피드백 → 다음 에피소드의 흐름을 구현했습니다. 코드 브랜치는 `feat/local-cot-monitoring`입니다.
+**현재 단계: Colab T4용 로컬 Qwen CoT 감시 실행기 준비.** 웹만 사용한다면 [새 노트북](notebooks/local_cot_monitoring_colab.ipynb)과 [한국어 안내](docs/local_cot_monitoring.ko.md)를 사용하세요. 추론 → monitor 판정 → 허용된 SHADE 도구 실행 → 차단 피드백 → 다음 에피소드의 흐름을 구현했습니다. 코드 브랜치는 `feat/local-cot-monitoring`입니다.
 
 2번 셀에서 `Pinned uv bootstrap failed`가 나온 초기 노트북은 수정했습니다. 버전 문자열의 빌드 정보를 허용하고, 고정 설치한 실행 파일을 직접 선택합니다. 이전 `f6ec2e7` 링크는 과거 버전이므로 현재 브랜치의 노트북을 새로 열어 1·2번 셀을 실행하세요. 관련 테스트 35개와 실제 uv 해시 설치·의존성 메타데이터 해석은 통과했으며, Colab GPU 설치 성공을 대신하는 검증은 아닙니다.
 
 논문이 사용한 Claude는 Colab Pro에 포함되지 않습니다. 현재 모델 API 예산 $0에 맞춰 **Qwen3-4B로 모델을 대체한 실험**을 준비했습니다. 이 새 감시 루프의 실제 GPU 실행과 논문 수치 재현은 아직 확인하지 않았습니다. 아래의 이전 단계 기록에서 “monitor 없음”, “논문 본문 미확인”은 당시의 상태이며, 새 구현은 업로드한 논문을 검토해 작성했습니다.
 
-새 코드 설치·검증 명령은 아래와 같습니다. GPU 설치는 실제 Colab GPU에서 실행하며, 기존 환경과 버전이 다르면 새 경로를 지정합니다. 설치 스크립트의 기본 Python은 3.12.14이고, 아래 명령은 사용자 성공 기록의 3.12.16을 명시합니다.
+새 코드 설치·검증 명령은 아래와 같습니다. GPU 설치는 실제 Colab GPU에서 실행하며, 기존 환경과 버전이 다르면 새 경로를 지정합니다. 새 가상환경은 uv에서 다운로드 가능한 검증 버전 **Python 3.12.14**를 사용합니다. Colab 기본 Python의 패치 버전과 달라도 됩니다. **T4를 사용해 Qwen3-4B의 4bit 파일럿을 진행**하며, 더 큰 GPU로 바꿀 필요는 없습니다. 새 감시 루프의 실제 T4 실행 성패는 별도로 확인해야 합니다.
 
 ```bash
 # Colab에서; 모델 API 키는 필요 없습니다.
-QWEN_PYTHON_VERSION=3.12.16 bash scripts/setup_qwen_gpu.sh
+QWEN_PYTHON_VERSION=3.12.14 bash scripts/setup_qwen_gpu.sh
 /content/ozlab-qwen-env/bin/python scripts/run_local_monitoring.py \
   --config configs/local-monitoring-pilot.json \
   --live-local --output-dir reports/local-monitoring-pilot

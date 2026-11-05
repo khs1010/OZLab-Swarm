@@ -185,5 +185,56 @@
     "colab_pinned_runner_commit": "1e4441b072673cc239c2205e407b06fc32a24fd7",
     "notebook_checks": "Code cells compile, outputs empty, embedded job exactly matches source, no __file__ required; not executed on Colab."
   },
-  "initial_colab_pinned_runner_commit": "a3c34d611d49ab9b5ea25040dc6fbe7e6a3a5d8c"
+  "initial_colab_pinned_runner_commit": "a3c34d611d49ab9b5ea25040dc6fbe7e6a3a5d8c",
+  "python_selection_follow_up": {
+    "verified_at_utc": "2026-11-05T21:43:14.402432+00:00",
+    "user_observation": "Colab T4 was recognized, uv 0.12.23 verified, then No download found for cpython-3.12.16-linux-x86_64-gnu.",
+    "cause": "Fresh managed-Python request copied the observed Colab Python patch version, which is absent from the pinned uv download catalog.",
+    "change": "Colab job default and explicit notebook setup argument use tested downloadable CPython 3.12.14. Underlying runner/model/source pin is retained.",
+    "checks": [
+      {
+        "command": "UV_CACHE_DIR=\"$PWD/.cache/uv\" uv python list 3.12.14 --only-downloads",
+        "result": "passed",
+        "cpython_linux_x86_64_gnu_download_available": true
+      },
+      {
+        "command": "UV_CACHE_DIR=\"$PWD/.cache/uv\" uv python list 3.12.16 --only-downloads",
+        "result": "no_matching_download",
+        "exit_code": 0
+      },
+      {
+        "commands": [
+          "uv python install 3.12.14 --no-bin",
+          "uv python find --managed-python 3.12.14",
+          "uv venv --python <downloaded-interpreter> <isolated-env>",
+          "<isolated-env>/bin/python -c \"import platform; print(platform.python_version())\""
+        ],
+        "result": "passed",
+        "path": "/tmp/ozlab-python31214-zfssofkr",
+        "observed_python": "3.12.14",
+        "downloaded_archive_size_MiB": 32.7,
+        "empty_venv_created": true,
+        "GPU_packages_installed": false
+      },
+      {
+        "command": ".venv/bin/python -m pytest -q tests/test_colab_monitoring_job.py tests/test_qwen_gpu_setup.py",
+        "result": "passed",
+        "passed": 35,
+        "failed": 0,
+        "GPU_used": false
+      },
+      {
+        "check": "Notebook code compiles, no saved outputs, embedded job matches script, setup explicitly selects 3.12.14",
+        "result": "passed",
+        "notebook_executed_on_Colab": false
+      }
+    ],
+    "model_api_calls": 0,
+    "T4_configuration": "One Qwen3-4B NF4 4bit model, FP16 and SDPA, sequential actor/monitor roles; no GPU upgrade required by this configuration.",
+    "not_verified": [
+      "Actual Colab CUDA/NF4 setup after Python correction",
+      "New actor-monitor model run on T4",
+      "Task success or paper reproduction"
+    ]
+  }
 }

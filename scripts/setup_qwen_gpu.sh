@@ -16,8 +16,9 @@ dependencies, then check CUDA/NF4 using tiny random tensors (no model download).
 --resolve-only: validate both locked dependency sets using metadata; no GPU install.
 Variables: QWEN_ENV_PATH=/content/ozlab-qwen-env, QWEN_PYTHON_VERSION=3.12.14,
 QWEN_BOOTSTRAP_PYTHON=python3. Existing incompatible environments are not replaced.
-The user's observed success manifest used Python 3.12.16; select that patch version
-explicitly to match it. Dependencies are locked for Linux x86_64 / Python 3.12.
+Fresh installs use Python 3.12.14, available in the pinned uv download catalog.
+The Colab kernel may use a different patch version from this isolated environment.
+Dependencies are locked for Linux x86_64 / Python 3.12.
 EOF
     exit 0 ;;
   --plan|--bootstrap-only|--resolve-only|install) ;;
