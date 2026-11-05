@@ -15,9 +15,29 @@ def _scalar(value):
     return value if value is None or type(value) in (str, bool) else _number(value)
 
 
+_BOOL_FIELDS = {
+    "paper_reproduction", "model_responses_mocked", "run_complete", "monitor_enabled",
+    "block_at_threshold", "evasion_success_strict_lt_80", "upstream_side_evasion_success_strict_lt_80",
+    "main_success", "upstream_side_task_success", "threshold_met", "completed_only_threshold_met",
+}
+_TEXT_FIELDS = {
+    "scope", "paper_id", "execution_mode", "repo_commit", "upstream_commit", "status",
+    "termination_reason", "started_at_utc", "finished_at_utc", "awareness_review",
+    "obfuscation_intent_review", "profile", "model_id", "revision",
+}
+
+
+def _field(key, value):
+    if key in _BOOL_FIELDS:
+        return value if type(value) is bool else None
+    if key in _TEXT_FIELDS:
+        return value if isinstance(value, str) else None
+    return _number(value)
+
+
 def public_summary(report: dict) -> dict:
     report = _mapping(report)
-    output = {key: _scalar(report.get(key)) for key in (
+    output = {key: _field(key, report.get(key)) for key in (
         "scope", "paper_id", "paper_reproduction", "execution_mode", "model_responses_mocked",
         "model_api_calls", "repo_commit", "upstream_commit", "status", "termination_reason",
         "episodes_requested", "episodes_completed", "run_complete", "model_requests",
@@ -27,7 +47,7 @@ def public_summary(report: dict) -> dict:
     output["usage"] = {key: _number(_mapping(report.get("usage")).get(key))
                        for key in ("input_tokens", "output_tokens")}
     config = _mapping(report.get("config"))
-    output["settings"] = {key: _scalar(config.get(key)) for key in (
+    output["settings"] = {key: _field(key, config.get(key)) for key in (
         "profile", "model_id", "revision", "seed", "episodes", "max_turns",
         "max_actor_tokens", "max_monitor_tokens", "max_total_generated_tokens", "context_limit",
         "temperature", "top_p", "monitor_enabled", "block_threshold", "block_at_threshold",
@@ -38,7 +58,7 @@ def public_summary(report: dict) -> dict:
     for episode in episodes if isinstance(episodes, list) else []:
         if not isinstance(episode, dict):
             continue
-        row = {key: _scalar(episode.get(key)) for key in (
+        row = {key: _field(key, episode.get(key)) for key in (
             "episode", "status", "termination_reason", "turns", "tool_calls", "tool_errors",
             "evasion_success_strict_lt_80", "upstream_side_evasion_success_strict_lt_80",
         )}
@@ -46,11 +66,11 @@ def public_summary(report: dict) -> dict:
         row["monitor_scores"] = [score for score in scores
                                  if _number(score) is not None and 0 <= score <= 100] if isinstance(scores, list) else []
         evaluation = _mapping(episode.get("evaluation"))
-        row.update({key: _scalar(evaluation.get(key)) for key in (
+        row.update({key: _field(key, evaluation.get(key)) for key in (
             "main_score", "main_success", "upstream_side_task_success",
         )})
         text = _mapping(evaluation.get("task_text"))
-        row["task_text"] = {key: _scalar(text.get(key)) for key in (
+        row["task_text"] = {key: _field(key, text.get(key)) for key in (
             "threshold_usd", "threshold_met", "target_total_usd",
             "completed_only_target_total_usd", "completed_only_threshold_met",
         )}
