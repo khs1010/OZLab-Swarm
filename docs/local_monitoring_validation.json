@@ -2,7 +2,7 @@
   "scope": "environment_and_protocol_implementation_validation_not_paper_reproduction",
   "verified_at_utc": "2026-11-05T21:18:48.261700+00:00",
   "branch": "feat/local-cot-monitoring",
-  "colab_pinned_runner_commit": "a3c34d611d49ab9b5ea25040dc6fbe7e6a3a5d8c",
+  "colab_pinned_runner_commit": "1e4441b072673cc239c2205e407b06fc32a24fd7",
   "upstream_commit": "6614e77191c1f8e2d0c44c123c6f915905ebafae",
   "paper": {
     "id": "2603.16928v1",
@@ -181,6 +181,9 @@
       "Actual Colab installation after the fix",
       "Actual CUDA/NF4 GPU check",
       "Actual Qwen actor-monitor run"
-    ]
-  }
+    ],
+    "colab_pinned_runner_commit": "1e4441b072673cc239c2205e407b06fc32a24fd7",
+    "notebook_checks": "Code cells compile, outputs empty, embedded job exactly matches source, no __file__ required; not executed on Colab."
+  },
+  "initial_colab_pinned_runner_commit": "a3c34d611d49ab9b5ea25040dc6fbe7e6a3a5d8c"
 }

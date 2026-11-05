@@ -12,7 +12,7 @@ import sys
 import zipfile
 
 SOURCE_URL = "https://github.com/khs1010/OZLab-Swarm.git"
-SOURCE_COMMIT = "a3c34d611d49ab9b5ea25040dc6fbe7e6a3a5d8c"
+SOURCE_COMMIT = "1e4441b072673cc239c2205e407b06fc32a24fd7"
 DEFAULT_ROOT = "/content/ozlab-cot-source-" + SOURCE_COMMIT[:8]
 DEFAULT_RESULTS = "/content/ozlab-cot-results"
 DEFAULT_ENV = "/content/ozlab-cot-env"
