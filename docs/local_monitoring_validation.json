@@ -128,5 +128,59 @@
     "Larger GPU does not enlarge native model context; complete history can stop the run.",
     "Hard process timeout may leave only latest state checkpoints without final evaluation.",
     "User has web-only Colab access; CLI capability inspection is not authenticated remote execution."
-  ]
+  ],
+  "uv_bootstrap_follow_up": {
+    "verified_at_utc": "2026-11-05T21:31:34.759451+00:00",
+    "user_observation": "Colab cell 2 recognized Tesla T4 then exited with Pinned uv bootstrap failed; actual Colab uv output was not shown.",
+    "confirmed_code_defects": [
+      "Whole-line version comparison rejects correct releases with trailing build metadata.",
+      "python -m uv can discover a different global uv instead of the hash-installed target executable."
+    ],
+    "changes": [
+      "Compare executable name and exact version token; permit build metadata.",
+      "Invoke target/bin/uv directly; repair partial/wrong cache using pinned hash requirements.",
+      "Add --bootstrap-only without GPU dependencies, and observed-version diagnostics."
+    ],
+    "checks": [
+      {
+        "command": "bash scripts/setup_qwen_gpu.sh --bootstrap-only",
+        "result": "passed",
+        "observed_version": "uv 0.12.23 (x86_64-unknown-linux-gnu)",
+        "package_installation_needed": false
+      },
+      {
+        "check": "Fresh isolated bootstrap with authored wrong global uv and actual hash-verified PyPI wheel installation",
+        "result": "passed",
+        "exit_code": 0,
+        "path": "/tmp/ozlab-uv-bootstrap-pa4x4hi3",
+        "pinned_binary_version": "uv 0.12.23 (x86_64-unknown-linux-gnu)",
+        "actual_uv_installation": true,
+        "GPU_dependencies_installed": false
+      },
+      {
+        "command": "bash scripts/setup_qwen_gpu.sh --resolve-only",
+        "result": "passed",
+        "resolved_packages": 70,
+        "metadata_only": true
+      },
+      {
+        "command": ".venv/bin/python -m pytest -q tests/test_qwen_gpu_setup.py tests/test_colab_monitoring_job.py",
+        "result": "passed",
+        "passed": 35,
+        "failed": 0,
+        "models_mocked": true,
+        "GPU_used": false
+      },
+      {
+        "command": "bash -n scripts/setup_qwen_gpu.sh; git diff --check",
+        "result": "passed"
+      }
+    ],
+    "model_api_calls": 0,
+    "not_verified": [
+      "Actual Colab installation after the fix",
+      "Actual CUDA/NF4 GPU check",
+      "Actual Qwen actor-monitor run"
+    ]
+  }
 }

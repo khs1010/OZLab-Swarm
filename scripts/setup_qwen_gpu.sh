@@ -8,10 +8,11 @@ MODE="${1:-install}"
 case "$MODE" in
   --help|-h)
     cat <<'EOF'
-Usage: bash scripts/setup_qwen_gpu.sh [--plan|--resolve-only]
+Usage: bash scripts/setup_qwen_gpu.sh [--plan|--bootstrap-only|--resolve-only]
 Default: create/check an isolated Python environment and install locked GPU+bank
 dependencies, then check CUDA/NF4 using tiny random tensors (no model download).
 --plan: print selected paths/versions only; no network or installation.
+--bootstrap-only: check/install pinned uv only; no GPU dependencies or weights.
 --resolve-only: validate both locked dependency sets using metadata; no GPU install.
 Variables: QWEN_ENV_PATH=/content/ozlab-qwen-env, QWEN_PYTHON_VERSION=3.12.14,
 QWEN_BOOTSTRAP_PYTHON=python3. Existing incompatible environments are not replaced.
@@ -19,7 +20,7 @@ The user's observed success manifest used Python 3.12.16; select that patch vers
 explicitly to match it. Dependencies are locked for Linux x86_64 / Python 3.12.
 EOF
     exit 0 ;;
-  --plan|--resolve-only|install) ;;
+  --plan|--bootstrap-only|--resolve-only|install) ;;
   *) echo 'Unknown option; use --help.' >&2; exit 2 ;;
 esac
 QWEN_ENV_PATH="${QWEN_ENV_PATH:-/content/ozlab-qwen-env}"
@@ -41,9 +42,19 @@ fi
 export UV_CACHE_DIR="${UV_CACHE_DIR:-$ROOT/.cache/uv}"
 export UV_PYTHON_INSTALL_DIR="${UV_PYTHON_INSTALL_DIR:-$ROOT/.cache/qwen-python}"
 UV_TOOLS="$ROOT/.cache/qwen-uv-0.12.23"
+uv_version_matches() {
+  local name version details
+  # Official builds can append a hash/date/platform. Pin the version token,
+  # rather than rejecting correct releases because their build text differs.
+  read -r name version details <<< "$1"
+  [[ "$name" == uv && "$version" == 0.12.23 ]]
+}
 UV_BIN="$(command -v uv || true)"
-if [[ -n "$UV_BIN" ]] && [[ "$("$UV_BIN" --version)" != 'uv 0.12.23' ]]; then
-  UV_BIN=""
+if [[ -n "$UV_BIN" ]]; then
+  if ! UV_REPORTED="$("$UV_BIN" --version 2>&1)" || ! uv_version_matches "$UV_REPORTED"; then
+    printf 'PATH uv is not the pinned release; using isolated tools. Observed: %s\n' "$UV_REPORTED"
+    UV_BIN=""
+  fi
 fi
 if [[ -z "$UV_BIN" ]]; then
   mkdir -p "$UV_TOOLS"
@@ -69,20 +80,27 @@ uv==0.12.23 \
     --hash=sha256:f05c5ad8d6cb4b2659cb6368ed02c067539415b24a2b69effd8ada576fdbf303 \
     --hash=sha256:fb8a4117a5224d73abe2204a1e744ae34b544f1b9a0b761576851deaa7215c12
 EOF
-  if [[ ! -d "$UV_TOOLS/uv" ]]; then
+  # Execute the pinned binary directly. `python -m uv` can choose another uv
+  # from Python's global scripts directory even with a pinned PYTHONPATH.
+  UV_BIN="$UV_TOOLS/bin/uv"
+  if [[ ! -x "$UV_BIN" ]] || ! UV_REPORTED="$("$UV_BIN" --version 2>&1)" || ! uv_version_matches "$UV_REPORTED"; then
     "$QWEN_BOOTSTRAP_PYTHON" -m pip install --disable-pip-version-check --no-deps \
       --only-binary=:all: --require-hashes --index-url https://pypi.org/simple \
-      --target "$UV_TOOLS" -r "$UV_TOOLS/bootstrap-requirements.txt"
+      --upgrade --target "$UV_TOOLS" -r "$UV_TOOLS/bootstrap-requirements.txt"
   fi
 fi
 uv_run() {
-  if [[ -n "$UV_BIN" ]]; then
-    "$UV_BIN" "$@"
-  else
-    PYTHONPATH="$UV_TOOLS${PYTHONPATH:+:$PYTHONPATH}" "$QWEN_BOOTSTRAP_PYTHON" -m uv "$@"
-  fi
+  "$UV_BIN" "$@"
 }
-[[ "$(uv_run --version)" == 'uv 0.12.23' ]] || { echo 'Pinned uv bootstrap failed.' >&2; exit 1; }
+if ! UV_REPORTED="$(uv_run --version 2>&1)" || ! uv_version_matches "$UV_REPORTED"; then
+  printf 'Pinned uv bootstrap failed. Expected uv 0.12.23; binary: %s; observed: %s\n' "$UV_BIN" "$UV_REPORTED" >&2
+  exit 1
+fi
+printf 'Verified uv: %s (%s)\n' "$UV_REPORTED" "$UV_BIN"
+if [[ "$MODE" == --bootstrap-only ]]; then
+  echo 'uv bootstrap passed. No GPU dependencies, CUDA checks or model weights were loaded.'
+  exit 0
+fi
 if [[ "$MODE" == --resolve-only ]]; then
   mkdir -p "$ROOT/.cache"
   uv_run pip compile --python-version 3.12 --python-platform x86_64-unknown-linux-gnu \
