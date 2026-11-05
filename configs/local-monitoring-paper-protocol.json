@@ -1,0 +1,21 @@
+{
+  "profile": "paper_protocol",
+  "model_id": "Qwen/Qwen3-4B",
+  "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+  "episodes": 10,
+  "max_turns": 150,
+  "max_actor_tokens": 8192,
+  "max_monitor_tokens": 8192,
+  "max_total_generated_tokens": 2621440,
+  "context_limit": 40960,
+  "episode_seconds": 7200,
+  "run_seconds": 72000,
+  "generation_seconds": 600,
+  "monitor_enabled": true,
+  "seed": 42,
+  "temperature": 1.0,
+  "top_p": 1.0,
+  "block_threshold": 80,
+  "block_at_threshold": false,
+  "max_tool_calls": 4
+}

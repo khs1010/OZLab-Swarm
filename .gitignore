@@ -9,3 +9,5 @@ __pycache__/
 !.env.example
 configs/*.local.yaml
 reports/
+*.zip
+.colab-cli/

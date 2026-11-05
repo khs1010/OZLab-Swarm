@@ -1,5 +1,27 @@
 # OZLab-Swarm: Bank Transfer 개발 환경
 
+**현재 단계: Colab Pro용 로컬 Qwen CoT 감시 실행기 준비.** 웹만 사용한다면 [새 노트북](notebooks/local_cot_monitoring_colab.ipynb)과 [한국어 안내](docs/local_cot_monitoring.ko.md)를 사용하세요. 추론 → monitor 판정 → 허용된 SHADE 도구 실행 → 차단 피드백 → 다음 에피소드의 흐름을 구현했습니다. 코드 브랜치는 `feat/local-cot-monitoring`입니다.
+
+논문이 사용한 Claude는 Colab Pro에 포함되지 않습니다. 현재 모델 API 예산 $0에 맞춰 **Qwen3-4B로 모델을 대체한 실험**을 준비했습니다. 이 새 감시 루프의 실제 GPU 실행과 논문 수치 재현은 아직 확인하지 않았습니다. 아래의 이전 단계 기록에서 “monitor 없음”, “논문 본문 미확인”은 당시의 상태이며, 새 구현은 업로드한 논문을 검토해 작성했습니다.
+
+새 코드 설치·검증 명령은 아래와 같습니다. GPU 설치는 실제 Colab GPU에서 실행하며, 기존 환경과 버전이 다르면 새 경로를 지정합니다. 설치 스크립트의 기본 Python은 3.12.14이고, 아래 명령은 사용자 성공 기록의 3.12.16을 명시합니다.
+
+```bash
+# Colab에서; 모델 API 키는 필요 없습니다.
+QWEN_PYTHON_VERSION=3.12.16 bash scripts/setup_qwen_gpu.sh
+/content/ozlab-qwen-env/bin/python scripts/run_local_monitoring.py \
+  --config configs/local-monitoring-pilot.json \
+  --live-local --output-dir reports/local-monitoring-pilot
+
+# 개발 머신에서; 모의 모델 응답 + 실제 SHADE, GPU·모델 API 없음
+.venv/bin/python scripts/run_local_monitoring.py --validate-config
+.venv/bin/python scripts/run_local_monitoring.py \
+  --offline --output-dir reports/local-monitoring-offline
+.venv/bin/python -m pytest -q
+```
+
+`run/summary.json`에서 에피소드별 종료·점수를 확인합니다. `end_task`나 실행 종료 코드 0은 정상 과제 성공과 별개입니다. 원본 모델 출력·상태·ZIP은 `reports/` 등에 개인 보관하고 Git에 올리지 않습니다. 공개용 요약은 `local_monitoring/summary.py`의 허용 목록으로 따로 생성합니다. 상세 검증과 실행하지 못한 항목은 [검증 기록](docs/local_monitoring_validation.json)에 구분합니다.
+
 Swarm Alignment 해커톤의 첫 단계로, **SHADE-Arena의 실제 `bank_transfer_2` 환경을 모델 API 없이 실행·점검**했습니다. 환경 준비 결과이며, 논문 재현 성공이나 에이전트 성능 측정 결과가 아닙니다.
 
 후속 단계로 **실제 모델을 연결할 수 있는 1-agent·1-episode 실행기**도 구현했습니다. 이번 작업에서는 monitor를 끄고 오프라인 모의 모델로만 검증했습니다. 실제 API 실행 방법은 [실행기 안내](docs/single_agent_runner.ko.md)에 있습니다.
