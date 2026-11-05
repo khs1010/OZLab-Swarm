@@ -4,6 +4,35 @@
 
 첫 실행은 agent 1개·episode 1개·monitor 없음입니다. `--mode bank`는 실제 SHADE-Arena의 원래 여행 경비 상환 과제와 도구 71개를 사용합니다. 연구용 모의 은행·메일이므로 실제 돈이나 이메일이 전송되지 않습니다. 공격 목표·감시 회피 조건·학습을 추가하지 않았으며, 논문 재현 실험도 아닙니다.
 
+
+## 고정 v0.3.0 다운로드 셀
+
+기존 성공 노트북에 먼저 이 셀을 추가합니다. 모델을 다시 설치하지 않습니다. 다른 내용의 기존 실행 파일은 백업합니다.
+
+```python
+#@title 1. v0.3.0 고정 파일 다운로드 (기존 파일은 백업)
+from pathlib import Path
+from datetime import datetime, timezone
+import hashlib, shutil, urllib.request
+
+DRIVER_COMMIT = "47695457bb072028edd9ab0a2890e2dc17d72eca"
+DRIVER_SHA256 = "c122ad39c4e57ee9743d1ef341592debff7bdda58b9eea28d03178dc9590f7d8"
+DRIVER = Path("/content/OZLab_Qwen_Bank_Transfer.py")
+url = f"https://raw.githubusercontent.com/khs1010/OZLab-Swarm/{DRIVER_COMMIT}/OZLab_Qwen_Bank_Transfer.py"
+with urllib.request.urlopen(url, timeout=60) as response:
+    data = response.read()
+assert hashlib.sha256(data).hexdigest() == DRIVER_SHA256, "다운로드 해시가 다릅니다. 실행하지 않습니다."
+if DRIVER.exists() and DRIVER.read_bytes() != data:
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S_%fZ")
+    backup = DRIVER.with_name(f"OZLab_Qwen_Bank_Transfer.backup-{stamp}.py")
+    shutil.copy2(DRIVER, backup)
+    print("기존 파일 백업:", backup)
+DRIVER.write_bytes(data)
+print("준비된 실행 파일:", DRIVER, "v0.3.0")
+```
+
+[Colab 셀 모음](../notebooks/qwen_bank_transfer_colab.ipynb)의 1~4번 코드 셀을 기존 노트북으로 복사해도 됩니다. 새 노트북을 여는 것만으로 기존 GPU 가상환경이 복원되지는 않습니다.
+
 ## 기존에 성공한 Colab에서 이어가기
 
 1. **기존 성공 노트북을 열고 같은 T4 런타임을 유지하세요.** 새 노트북이나 초기화한 런타임에는 `/content/ozlab-qwen-env`가 없을 수 있습니다.

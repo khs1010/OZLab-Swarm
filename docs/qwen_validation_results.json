@@ -64,6 +64,17 @@
   "source_sha256": {
     "OZLab_Qwen_Bank_Transfer.py": "c122ad39c4e57ee9743d1ef341592debff7bdda58b9eea28d03178dc9590f7d8",
     "tests/test_qwen_driver.py": "1ce23107f6c0c92d587f69b7f57870a22a29b2812db1b748027644b34151723e",
-    "tests/test_qwen_loop_offline.py": "6ea42518dfea2459c041f46299ebfcdac1c6b6c806a56d22205f05757505e66f"
+    "tests/test_qwen_loop_offline.py": "6ea42518dfea2459c041f46299ebfcdac1c6b6c806a56d22205f05757505e66f",
+    "notebooks/qwen_bank_transfer_colab.ipynb": "41879eea0966a658eac68fbebc6cf98a525c0e43904bb3615907d9a7b61341ff"
+  },
+  "colab_cell_collection_validation": {
+    "notebook": "notebooks/qwen_bank_transfer_colab.ipynb",
+    "nbformat_validate": "passed",
+    "four_code_cells_compile": "passed",
+    "saved_outputs": "empty",
+    "driver_commit": "47695457bb072028edd9ab0a2890e2dc17d72eca",
+    "embedded_driver_sha256_matches_tested_driver": true,
+    "requires_existing_successful_qwen_environment": true,
+    "actual_colab_qwen_bank_execution": "not_run_here"
   }
 }

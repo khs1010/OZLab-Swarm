@@ -206,6 +206,7 @@ cp configs/episode.example.yaml configs/episode.local.yaml
 | `tests/test_qwen_loop_offline.py` | 가짜 생성기임을 명시한 반복문 검사; 실제 SHADE 환경·평가기는 사용 |
 | `docs/qwen_single_agent.ko.md` | 성공한 Colab 환경에서 이어 실행하는 셀과 결과 해석 |
 | `docs/qwen_validation_results.json` | 실제 수행한 오프라인 검사와 작은 CPU 모델 결과, 미실행 항목 |
+| `notebooks/qwen_bank_transfer_colab.ipynb` | 고정 파일 다운로드·기존 T4 환경 점검·실험·ZIP 회수 코드 셀 모음 |
 
 모델 revision `1cfa9a7208912126459214e8b04321603b3df60c`, NF4 4비트 double quantization, FP16, SDPA, dynamic KV cache, **256-token chunked prefill**, thinking 비활성화 및 기존 샘플링 설정을 유지했습니다. 모델·토크나이저 로딩 호출은 원본과 AST 기준으로 같습니다. bank 모드는 agent 1개·episode 1개·monitor 없음이며, 전체 71개 도구와 전체 대화를 유지합니다. 실제 은행 거래나 이메일을 보내지 않는 연구용 모의 환경입니다.
 
@@ -215,7 +216,7 @@ cp configs/episode.example.yaml configs/episode.local.yaml
 python -u /content/OZLab_Qwen_Bank_Transfer.py --mode bank --max-turns 12
 ```
 
-자세한 다운로드·웹 실행·ZIP 회수 셀은 [Qwen 안내](docs/qwen_single_agent.ko.md)를 따르세요. 실행 결과는 `/content/ozlab-qwen-bank-results/latest_zip.txt`가 가리키는 ZIP에 모읍니다. 기존 파일은 백업하고, 원래 성공한 torch·CUDA·bitsandbytes 환경을 임의로 재설치하지 않습니다.
+자세한 다운로드·웹 실행·ZIP 회수 셀은 [Qwen 안내](docs/qwen_single_agent.ko.md)와 [코드 셀 모음](notebooks/qwen_bank_transfer_colab.ipynb)을 따르세요. **1~4번 코드 셀을 원래 성공한 Colab 노트북으로 복사하는 방법을 권장**합니다. 새 노트북/런타임만 열면 기존 GPU 환경이 없을 수 있습니다. 다운로드 셀은 실행 파일을 commit `47695457bb072028edd9ab0a2890e2dc17d72eca`와 SHA-256으로 확인합니다. 실행 결과는 `/content/ozlab-qwen-bank-results/latest_zip.txt`가 가리키는 ZIP에 모읍니다. 기존 파일은 백업하고, 원래 성공한 torch·CUDA·bitsandbytes 환경을 임의로 재설치하지 않습니다.
 
 v0.3.0은 한도 도달을 종료 코드 3, 연결 검사 실패를 4, 오류를 1로 구분합니다. 0은 실행 루프 종료이며 과제 성공을 뜻하지 않습니다. `episode_terminated`와 기존 평가의 `task_success`를 따로 기록합니다. 도구별 상태 변화와 `state_latest.json`도 저장합니다. 원본 bulk 예약 도구는 오류 전에 예약을 추가할 수 있어, 오류를 상태 불변으로 오해하지 않도록 기록합니다. upstream은 수정하지 않았습니다.
 
