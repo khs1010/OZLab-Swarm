@@ -4,6 +4,8 @@ Swarm Alignment 해커톤의 첫 단계로, **SHADE-Arena의 실제 `bank_transf
 
 후속 단계로 **실제 모델을 연결할 수 있는 1-agent·1-episode 실행기**도 구현했습니다. 이번 작업에서는 monitor를 끄고 오프라인 모의 모델로만 검증했습니다. 실제 API 실행 방법은 [실행기 안내](docs/single_agent_runner.ko.md)에 있습니다.
 
+**모델 API 예산 $0인 현재 경로는 무료 Colab T4의 로컬 `Qwen/Qwen3-4B`입니다.** 사용자가 제공한 v0.2.0을 이어가는 [Qwen 실행 안내](docs/qwen_single_agent.ko.md)를 사용하세요. 이 경로는 API 키 없이, 이미 성공한 Qwen GPU 환경을 재사용합니다.
+
 - 연구 목표: [Noticing the Watcher: LLM Agents Can Infer CoT Monitoring from Blocking Feedback](https://arxiv.org/abs/2603.16928)의 단일 agent 실험을 준비하기.
 - 기반 코드: [jkutaso/SHADE-Arena](https://github.com/jkutaso/SHADE-Arena).
 - 고정 upstream commit: `6614e77191c1f8e2d0c44c123c6f915905ebafae`.
@@ -192,3 +194,37 @@ cp configs/episode.example.yaml configs/episode.local.yaml
 이는 사용자 제공 실행 자료 검증이며 에이전트가 원격 런타임을 직접 관찰한 것은 아닙니다. 무료 요금제·GPU 할당·청구 정보는 ZIP에 없어 검증하지 않았습니다. Colab에서 전체 pytest나 실제 모델 에피소드를 실행했다는 의미도 아니며 논문 재현 결과도 아닙니다.
 
 참고한 `google-colab-cli`는 로컬 터미널에서 Colab을 조작하는 별도 도구입니다. 공식 CLI 0.7.5는 격리 설치하여 버전·도움말만 확인했고, 사용 가능한 사용자 ADC로 세션 조회는 성공하지 못했습니다. 웹만 사용하는 이번 방식에는 CLI가 필요 없습니다. 나중에 터미널을 사용할 때의 인증·CPU 요청·결과 다운로드·종료 방법은 위 안내에 별도로 적었습니다.
+
+## 7. API 비용 $0: 로컬 Qwen Bank Transfer 1에피소드
+
+사용자가 첨부한 `OZLab_Qwen_Bank_Transfer.py` v0.2.0을 먼저 읽고 원본 그대로 커밋 `959084620c72ba6234bdec384e8bf4b9d1dc3a4e`에 보존했습니다. 원본 SHA-256은 `46b2deee4c39b848829ea8222b29807981d202cfe868f446ba1a791730958a93`입니다. 후속 v0.3.0은 **모델 로딩 성공·get_balance 연동 성공을 보고한 기존 Colab 환경을 이어가는 코드**이며, 새로운 GPU 설치 조합으로 바꾸지 않았습니다.
+
+| 파일 | 역할 |
+| --- | --- |
+| `OZLab_Qwen_Bank_Transfer.py` | Qwen 로컬 생성 → 실제 SHADE 도구 → 다음 응답 → 기존 평가·결과 ZIP |
+| `tests/test_qwen_driver.py` | 엄격한 파서·종료 코드·실제 도구·부분 상태 변경·체크포인트·프로세스 제한 검사 |
+| `tests/test_qwen_loop_offline.py` | 가짜 생성기임을 명시한 반복문 검사; 실제 SHADE 환경·평가기는 사용 |
+| `docs/qwen_single_agent.ko.md` | 성공한 Colab 환경에서 이어 실행하는 셀과 결과 해석 |
+| `docs/qwen_validation_results.json` | 실제 수행한 오프라인 검사와 작은 CPU 모델 결과, 미실행 항목 |
+
+모델 revision `1cfa9a7208912126459214e8b04321603b3df60c`, NF4 4비트 double quantization, FP16, SDPA, dynamic KV cache, **256-token chunked prefill**, thinking 비활성화 및 기존 샘플링 설정을 유지했습니다. 모델·토크나이저 로딩 호출은 원본과 AST 기준으로 같습니다. bank 모드는 agent 1개·episode 1개·monitor 없음이며, 전체 71개 도구와 전체 대화를 유지합니다. 실제 은행 거래나 이메일을 보내지 않는 연구용 모의 환경입니다.
+
+기존 Colab의 `/content/ozlab-qwen-env`와 원래 성공한 설치 셀이 필요합니다. 이 드라이버는 새 GPU 환경을 자동으로 만들지 않습니다. 기존 노트북에서 고정 버전 파일을 받은 뒤 실행할 명령은 다음과 같습니다.
+
+```text
+python -u /content/OZLab_Qwen_Bank_Transfer.py --mode bank --max-turns 12
+```
+
+자세한 다운로드·웹 실행·ZIP 회수 셀은 [Qwen 안내](docs/qwen_single_agent.ko.md)를 따르세요. 실행 결과는 `/content/ozlab-qwen-bank-results/latest_zip.txt`가 가리키는 ZIP에 모읍니다. 기존 파일은 백업하고, 원래 성공한 torch·CUDA·bitsandbytes 환경을 임의로 재설치하지 않습니다.
+
+v0.3.0은 한도 도달을 종료 코드 3, 연결 검사 실패를 4, 오류를 1로 구분합니다. 0은 실행 루프 종료이며 과제 성공을 뜻하지 않습니다. `episode_terminated`와 기존 평가의 `task_success`를 따로 기록합니다. 도구별 상태 변화와 `state_latest.json`도 저장합니다. 원본 bulk 예약 도구는 오류 전에 예약을 추가할 수 있어, 오류를 상태 불변으로 오해하지 않도록 기록합니다. upstream은 수정하지 않았습니다.
+
+실제 수행한 검증:
+
+| 검사 | 결과 |
+| --- | --- |
+| 전체 `.venv/bin/python -m pytest -q --junitxml=reports/qwen-offline-pytest.xml` | **102 passed**, 실패·skip 없음, 기존 upstream 경고 8건 |
+| v0.3.0 자체 파서·도구 경계·프로세스 검사 | **8개 통과** |
+| 작은 무작위 Qwen3 CPU 모델, Transformers 4.57.1 / torch 2.6.0+cpu | 일반 생성과 chunk 생성 토큰 동일, 첫 logits 일치 허용 오차 내, 최대 차이 약 4.47e-08 |
+
+반복문 테스트의 torch·tokenizer·생성기는 **명시적인 테스트 대역**이며 실제 Qwen3-4B 결과가 아닙니다. 작은 CPU 모델도 pretrained 가중치를 받지 않은 별도 계산 경로 검사입니다. 현재 개발 머신에는 GPU가 없어 **Qwen3-4B/T4 bank 에피소드는 아직 여기서 실행하지 않았습니다**. 긴 71개 도구 문맥이 T4에서 끝까지 성공하는지는 본인 Colab의 실제 ZIP으로 확인해야 합니다. 유료 API·monitor·공격 목표·학습·논문 재현은 이 경로에서 실행하지 않습니다.

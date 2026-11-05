@@ -1,0 +1,69 @@
+{
+  "scope": "local_qwen_driver_preparation_and_offline_validation_not_gpu_task_results",
+  "generated_at_utc": "2026-11-05T03:32:00.778062+00:00",
+  "branch": "feat/colab-single-agent",
+  "supplied_file": {
+    "filename": "OZLab_Qwen_Bank_Transfer (1).py",
+    "version": "0.2.0",
+    "sha256": "46b2deee4c39b848829ea8222b29807981d202cfe868f446ba1a791730958a93",
+    "preserved_import_commit": "959084620c72ba6234bdec384e8bf4b9d1dc3a4e"
+  },
+  "active_driver_version": "0.3.0",
+  "model_id": "Qwen/Qwen3-4B",
+  "model_revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+  "same_model_and_tokenizer_loading_ast_as_supplied": true,
+  "helper_repo_pin": "9917211719190f7e871bd7d246eeb7400165d1ff",
+  "upstream_pin": "6614e77191c1f8e2d0c44c123c6f915905ebafae",
+  "pytest": {
+    "command": ".venv/bin/python -m pytest -q --junitxml=reports/qwen-offline-pytest.xml",
+    "passed": 102,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "warnings": 8,
+    "duration_seconds": 32.138,
+    "prior_checks": 62,
+    "new_driver_checks": 31,
+    "new_authored_loop_checks": 9,
+    "junit_artifact": "reports/qwen-offline-pytest.xml"
+  },
+  "driver_self_checks": {
+    "scope": "offline_parser_and_dispatch_unit_checks_not_model_results",
+    "tests_run": 8,
+    "successful": true,
+    "failures": 0,
+    "errors": 0
+  },
+  "tiny_random_cpu_check": {
+    "scope": "random_tiny_qwen3_cpu_cache_check_not_task_performance_or_gpu_test",
+    "input_tokens": 32,
+    "chunk_size": 8,
+    "generated_token_ids_match": true,
+    "first_token_logits_close": true,
+    "max_first_token_logit_difference": 4.470348358154297e-08,
+    "successful": true,
+    "torch_version": "2.6.0+cpu",
+    "transformers_version": "4.57.1",
+    "cuda_available": false,
+    "network_connection_attempts": 0,
+    "pretrained_weights_loaded": false,
+    "driver_sha256": "c122ad39c4e57ee9743d1ef341592debff7bdda58b9eea28d03178dc9590f7d8"
+  },
+  "paid_model_api_calls": 0,
+  "qwen3_4b_weights_downloaded_here": false,
+  "gpu_available_here": false,
+  "real_qwen3_4b_bank_episode": "not_run_here_requires_existing_successful_colab_t4_runtime",
+  "user_reported_prior_connection": "Qwen loading and get_balance success reported by user; prior GPU result ZIP not supplied in this step",
+  "fresh_gpu_environment_rebuild": "not_implemented_preserve_existing_successful_environment_and_original_setup_cells",
+  "limitations": [
+    "Authored loop test doubles are not real Qwen generations.",
+    "Tiny random CPU model validates generation-cache path, not NF4/GPU or long-context performance.",
+    "Local GPU name does not independently prove free Colab billing tier.",
+    "No monitor, adversarial objective, blocking feedback, training, or paper reproduction."
+  ],
+  "source_sha256": {
+    "OZLab_Qwen_Bank_Transfer.py": "c122ad39c4e57ee9743d1ef341592debff7bdda58b9eea28d03178dc9590f7d8",
+    "tests/test_qwen_driver.py": "1ce23107f6c0c92d587f69b7f57870a22a29b2812db1b748027644b34151723e",
+    "tests/test_qwen_loop_offline.py": "6ea42518dfea2459c041f46299ebfcdac1c6b6c806a56d22205f05757505e66f"
+  }
+}
